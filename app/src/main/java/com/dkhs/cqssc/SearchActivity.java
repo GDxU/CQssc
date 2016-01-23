@@ -42,6 +42,7 @@ public class SearchActivity extends AppCompatActivity {
         tv_day = (TextView) findViewById(R.id.tv_day);
         tv_qihao = (TextView) findViewById(R.id.tv_qihao);
         dialog = new ProgressDialog(SearchActivity.this);
+        dialog.setCanceledOnTouchOutside(false);
         //   dialog.show();
         // 初始化，只需要调用一次
         AssetsDatabaseManager.initManager(getApplication());
@@ -102,13 +103,14 @@ public class SearchActivity extends AppCompatActivity {
         //  List<String> arrayToList = getArrayToList(strtouzhu);//决定的方案
         List<String> arrayToList = Utils.getArrayToList(Utils.getFromAssets(this, "touzhu.txt"));//决定的方案
         List<String> quedingfangan = Utils.quedingfangan(arrayToList);//第二个方案
+        id = new ResultsDao(this).queryResultByqihao(qihao).getId();
         Shouyi s = new Shouyi();
         while (flag) {
 
             if (res.getQihao().equals("") && "".equals(res.getResult())) {
                 // 第一期
                 count = 3;
-                Results resultByqihao = new ResultsDao(this).queryResultByqihao(qihao);
+                Results resultByqihao = new ResultsDao(this).queryResultById(id);
                 res = resultByqihao;
                 String result = resultByqihao.getResult();
                 id = resultByqihao.getId();
@@ -142,11 +144,16 @@ public class SearchActivity extends AppCompatActivity {
                 Results resultById = new ResultsDao(this).queryResultById(id);
                 String result = resultById.getResult();
                 res = resultById;
-                if (!zhongjiangfangan.equals(shouyi.getTouzifangan())) {
+                if (!zhongjiangfangan.contains(result)) {
                     sb.append("***********************************************\n");
                     Log.e("xue", "***********************************************");
                     res = new Results("", "");
                 }
+               /* if (!zhongjiangfangan.equals(shouyi.getTouzifangan())) {
+                    sb.append("***********************************************\n");
+                    Log.e("xue", "***********************************************");
+                    res = new Results("", "");
+                }*/
                 if (arrayToList.contains(result)) {
                     //第一种方案中奖
                     zhongjiangfangan = arrayToList;
