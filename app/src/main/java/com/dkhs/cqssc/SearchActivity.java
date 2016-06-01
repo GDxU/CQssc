@@ -226,7 +226,7 @@ public class SearchActivity extends Activity {
     }
 
 
-    public void year(View view) {
+    public void begin(View view) {
         Intent intent = new Intent(this, SelectActivity.class);
         intent.putExtra("name", "year");
         startActivityForResult(intent, BEGIN);
@@ -237,11 +237,8 @@ public class SearchActivity extends Activity {
         intent.putExtra("name", "end");
         startActivityForResult(intent, END);
     }
-
-
     public static final int BEGIN = 0;
     public static final int END = 1;
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -257,8 +254,6 @@ public class SearchActivity extends Activity {
                     break;
             }
         }
-
-
     }
 
     Handler handler = new Handler(new Handler.Callback() {
@@ -273,7 +268,6 @@ public class SearchActivity extends Activity {
                     Toast.makeText(SearchActivity.this, "输入初始期号有误", Toast.LENGTH_SHORT).show();
                     break;
             }
-
             return false;
         }
     });
