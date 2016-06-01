@@ -47,7 +47,7 @@
         android:clickable="true"
         android:gravity="center"
         android:hint="请输入初始期号"
-        android:onClick="year"
+        android:onClick="begin"
         android:textSize="20sp" />
     <Button
         android:id="@+id/btn_end"
