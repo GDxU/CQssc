@@ -1,14 +1,11 @@
 package com.dkhs.cqssc;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
-import android.widget.ListView;
+import android.widget.GridView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -17,57 +14,42 @@ import java.util.List;
 /**
  * Created by Administrator on 2016/1/23.
  */
-public class SelectActivity extends AppCompatActivity {
-    ListView lv;
+public class SelectActivity extends Activity implements AdapterView.OnItemClickListener {
+    GridView lv;
     List<String> list;
     MyAdapter adapter;
     String str;
+    TextView title;
+    StringBuffer sb = new StringBuffer();
+    String name;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.select_activity);
-        lv = (ListView) findViewById(R.id.list);
+        title = (TextView) findViewById(R.id.title);
+        lv = (GridView) findViewById(R.id.list);
         list = new ArrayList<>();
-        str = getIntent().getStringExtra("tv_year");
+        name = getIntent().getStringExtra("name");
+        str = "year";
+        title.setText("请选择年份");
         initData();
 
-        adapter = new MyAdapter();
+        adapter = new MyAdapter(this, list);
         lv.setAdapter(adapter);
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent();
-                intent.putExtra("data", list.get(position));
-                switch (str) {
-                    case "year":
-                        setResult(SearchActivity.YEAR, intent);
-                        break;
-                    case "month":
-                        setResult(SearchActivity.MONTH, intent);
-                        break;
-                    case "day":
-                        setResult(SearchActivity.DAY, intent);
-                        break;
-                    case "qihao":
-                        setResult(SearchActivity.QIHAO, intent);
-                        break;
-                }
-
-                finish();
-            }
-        });
+        lv.setOnItemClickListener(this);
 
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        setResult(4, new Intent());
+        //setResult(4, new Intent());
     }
 
     private void initData() {
         switch (str) {
+
             case "year":
                 for (int i = 2007; i < 2017; i++) {
                     list.add("" + i);
@@ -107,31 +89,52 @@ public class SelectActivity extends AppCompatActivity {
 
     }
 
-    class MyAdapter extends BaseAdapter {
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            convertView = LayoutInflater.from(SelectActivity.this).inflate(R.layout.text, null);
-            TextView tv = (TextView) convertView.findViewById(R.id.tv);
-            tv.setText(list.get(position));
-            return convertView;
-        }
 
-        @Override
-        public int getCount() {
-            return list.size();
-        }
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Intent intent = new Intent();
+        //intent.putExtra("data", list.get(position));
+        switch (str) {
+            case "year":
+                sb.append(list.get(position));
+                list.clear();
+                str = "month";
+                initData();
+                adapter.bindData(list);
+                title.setText("请选择月份");
+                //setResult(SearchActivity.YEAR, intent);
+                break;
+            case "month":
+                sb.append(list.get(position));
+                list.clear();
+                str = "day";
+                initData();
+                adapter.bindData(list);
+                title.setText("请选择日期");
+                //setResult(SearchActivity.MONTH, intent);
+                break;
+            case "day":
+                sb.append(list.get(position));
+                list.clear();
+                str = "qihao";
+                initData();
+                adapter.bindData(list);
+                title.setText("请选择期号");
+                //setResult(SearchActivity.DAY, intent);
+                break;
+            case "qihao":
+                sb.append(list.get(position));
+                intent.putExtra("data", sb.toString());
+                if("year".equals(name)){
+                    setResult(SearchActivity.BEGIN, intent);
+                }else if("end".equals(name)){
+                    setResult(SearchActivity.END, intent);
+                }
 
-        @Override
-        public Object getItem(int position) {
-            return null;
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return 0;
+                finish();
+                break;
         }
 
 
     }
-
 }

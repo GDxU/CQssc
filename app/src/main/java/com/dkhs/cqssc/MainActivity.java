@@ -1,8 +1,8 @@
 package com.dkhs.cqssc;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
 
@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * 把文件写到数据库
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 i++;
             }
+            System.out.println(">>>>");
             return Result;
         } catch (Exception e) {
             e.printStackTrace();

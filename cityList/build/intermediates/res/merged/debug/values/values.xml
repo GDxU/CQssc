@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- From: file:/C:/Users/xuetong/Desktop/CQssc/cityList/src/main/res/values/strings.xml -->
-    <eat-comment/>
     <string name="app_name">CityList</string>
     <string name="hello">Hello World, CityListActivity!</string>
 </resources>

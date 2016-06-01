@@ -1,13 +1,16 @@
 package com.dkhs.cqssc;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.dkhs.cqssc.dao.ResultsDao;
 import com.dkhs.cqssc.db.AssetsDatabaseManager;
@@ -22,47 +25,67 @@ import java.util.List;
  * 查询统计数据
  * Created by Administrator on 2016/1/17.
  */
-public class SearchActivity extends AppCompatActivity {
-    EditText et;
+public class SearchActivity extends Activity {
     TextView tv;
-    TextView tv_year;
-    TextView tv_month;
-    TextView tv_day;
-    TextView tv_qihao;
+    TextView tv_begin;
+    TextView tv_end;
     ProgressDialog dialog;
+    Button tv_count;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.search_activity);
-        et = (EditText) findViewById(R.id.et);
-        tv = (TextView) findViewById(R.id.tv);
-        tv_year = (TextView) findViewById(R.id.tv_year);
-        tv_month = (TextView) findViewById(R.id.tv_month);
-        tv_day = (TextView) findViewById(R.id.tv_day);
-        tv_qihao = (TextView) findViewById(R.id.tv_qihao);
-        dialog = new ProgressDialog(SearchActivity.this);
-        dialog.setCanceledOnTouchOutside(false);
-        //   dialog.show();
         // 初始化，只需要调用一次
         AssetsDatabaseManager.initManager(getApplication());
+        initViews();
+        //   dialog.show();
+
 
     }
 
+    private void initViews() {
+        setContentView(R.layout.search_activity);
+        tv_count = (Button) findViewById(R.id.tv_count);
+        tv = (TextView) findViewById(R.id.tv);
+        tv_begin = (TextView) findViewById(R.id.tv_begin);
+        tv_end = (TextView) findViewById(R.id.tv_end);
+        //tv_month = (TextView) findViewById(R.id.tv_month);
+        //tv_day = (TextView) findViewById(R.id.tv_day);
+        //tv_qihao = (TextView) findViewById(R.id.tv_qihao);
+        dialog = new ProgressDialog(SearchActivity.this);
+        dialog.setCanceledOnTouchOutside(false);
+        tv_count.setText("点击查询数据");
+    }
+
+    public void count(View v) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                long count = new ResultsDao(SearchActivity.this).queryCount();
+                Message message = new Message();
+                message.what = 1;
+                message.obj = count;
+                handler.sendMessage(message);
+            }
+        }).start();
+    }
 
     public void submit(View v) {
         dialog.show();
-
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    StringBuffer str = new StringBuffer();
-                    str.append(tv_year.getText().toString().trim());
-                    str.append(tv_month.getText().toString().trim());
-                    str.append(tv_day.getText().toString().trim());
-                    str.append(tv_qihao.getText().toString().trim());
-                    start(perRes, str.toString());
+                    String str = tv_begin.getText().toString().trim();
+                    if (str.length() != 9) {
+                        Message message = new Message();
+                        message.what = 2;
+                        handler.sendMessage(message);
+                        return;
+                    } else {
+                        start(perRes, str);
+                    }
                     dialog.dismiss();
                     Intent intent = new Intent(SearchActivity.this, ResultAcivity.class);
                     intent.putExtra("data", sb.toString());
@@ -205,32 +228,19 @@ public class SearchActivity extends AppCompatActivity {
 
     public void year(View view) {
         Intent intent = new Intent(this, SelectActivity.class);
-        intent.putExtra("tv_year", "year");
-        startActivityForResult(intent, YEAR);
+        intent.putExtra("name", "year");
+        startActivityForResult(intent, BEGIN);
     }
 
-    public void month(View view) {
+    public void end(View v) {
         Intent intent = new Intent(this, SelectActivity.class);
-        intent.putExtra("tv_year", "month");
-        startActivityForResult(intent, MONTH);
+        intent.putExtra("name", "end");
+        startActivityForResult(intent, END);
     }
 
-    public void day(View view) {
-        Intent intent = new Intent(this, SelectActivity.class);
-        intent.putExtra("tv_year", "day");
-        startActivityForResult(intent, DAY);
-    }
 
-    public void qihao(View view) {
-        Intent intent = new Intent(this, SelectActivity.class);
-        intent.putExtra("tv_year", "qihao");
-        startActivityForResult(intent, QIHAO);
-    }
-
-    public static final int YEAR = 0;
-    public static final int MONTH = 1;
-    public static final int DAY = 2;
-    public static final int QIHAO = 3;
+    public static final int BEGIN = 0;
+    public static final int END = 1;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -239,21 +249,33 @@ public class SearchActivity extends AppCompatActivity {
         if (null != data) {
             String str = data.getStringExtra("data");
             switch (requestCode) {
-                case YEAR:
-                    tv_year.setText(str);
+                case BEGIN:
+                    tv_begin.setText(str);
                     break;
-                case MONTH:
-                    tv_month.setText(str);
-                    break;
-                case DAY:
-                    tv_day.setText(str);
-                    break;
-                case QIHAO:
-                    tv_qihao.setText(str);
+                case END:
+                    tv_end.setText(str);
                     break;
             }
         }
 
 
     }
+
+    Handler handler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            switch (msg.what) {
+                case 1:
+                    long count = (long) msg.obj;
+                    tv_count.setText("数量:" + count);
+                    break;
+                case 2:
+                    Toast.makeText(SearchActivity.this, "输入初始期号有误", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+
+            return false;
+        }
+    });
+
 }

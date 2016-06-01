@@ -38,6 +38,8 @@ public class ResultsDao {
         db1 = mg.getDatabase("ssc.db");
     }
 
+
+
     /**
      * 根据期号查询Result
      */
@@ -56,6 +58,14 @@ public class ResultsDao {
             e.printStackTrace();
         }*/
         return results;
+    }
+    /**
+     * 查询数量
+     */
+    public long queryCount() {
+        Cursor cursor = db1.rawQuery("select count(*) from Results", null);
+        cursor.moveToFirst();
+        return cursor.getLong(0);
     }
 
     /**
