@@ -86,103 +86,116 @@ public class SearchActivity extends Activity {
         //  List<String> arrayToList = getArrayToList(strtouzhu);//决定的方案
         id = new ResultsDao(this).queryResultByqihao(begin).getId();
         end_id = new ResultsDao(this).queryResultByqihao(end).getId();
-        List<String> arrayToList = Utils.getArrayToList(Utils.getFromAssets(this, "touzhu.txt"));//决定的方案
-        List<String> quedingfangan = Utils.quedingfangan(arrayToList);//第二个方案
-        id = new ResultsDao(this).queryResultByqihao(begin).getId();
-        Shouyi s = new Shouyi();
-        while (flag) {
-
-            if (res.getQihao().equals("") && "".equals(res.getResult())) {
-                // 第一期
+        while (end_id <= id) {
+            if (!flag) {
+                flag = true;
                 count = REPEAT - 1;
-                Results resultByqihao = new ResultsDao(this).queryResultById(id);
-                res = resultByqihao;
-                String result = resultByqihao.getResult();
-                id = resultByqihao.getId();
-                if (arrayToList.contains(result)) {
-                    //第一种方案中奖
-                    sb.append("第1个方案中奖了....\n");
-                    sb.append("期号： ");
-                    sb.append(resultByqihao.getQihao());
-                    sb.append("\n");
-                    Log.e("xue", "第1个方案中奖了....");
-                    Log.e("xue", "期号： " + resultByqihao.getQihao());
-                    zhongjiangfangan = arrayToList;
-                    s.setTouziedu(1000 * money);
-                    s.setZhongjiangjine(money * i);
-                    s.setTouzifangan(arrayToList);
-                } else {
-                    //第二种方案中奖
-                    sb.append("第2个方案中奖了....\n");
-                    sb.append("期号： ");
-                    sb.append(resultByqihao.getQihao());
-                    sb.append("\n");
-                    Log.e("xue", "第2个方案中奖了....");
-                    Log.e("xue", "期号： " + resultByqihao.getQihao());
-                    zhongjiangfangan = quedingfangan;
-                    s.setTouziedu(1000 * money);
-                    s.setZhongjiangjine(money * i);
-                    s.setTouzifangan(quedingfangan);
-                }
+                res = new Results("", "");
             } else {
-                //不是第一期
-                Results resultById = new ResultsDao(this).queryResultById(id);
-                String result = resultById.getResult();
-                res = resultById;
-                if (!zhongjiangfangan.contains(result)) {
-                    sb.append("***********************************************\n");
-                    Log.e("xue", "***********************************************");
-                    res = new Results("", "");
-                }
+                id = new ResultsDao(this).queryResultByqihao(begin).getId();
+            }
+            List<String> arrayToList = Utils.getArrayToList(Utils.getFromAssets(this, "touzhu.txt"));//决定的方案
+            List<String> quedingfangan = Utils.quedingfangan(arrayToList);//第二个方案
+
+            Shouyi s = new Shouyi();
+            while (flag) {
+
+                if (res.getQihao().equals("") && "".equals(res.getResult())) {
+                    // 第一期
+                    count = REPEAT - 1;
+                    Results resultByqihao = new ResultsDao(this).queryResultById(id);
+                    res = resultByqihao;
+                    String result = resultByqihao.getResult();
+                    id = resultByqihao.getId();
+                    if (arrayToList.contains(result)) {
+                        //第一种方案中奖
+                        sb.append("第1个方案中奖了....\n");
+                        sb.append("期号： ");
+                        sb.append(resultByqihao.getQihao());
+                        sb.append("\n");
+                        Log.e("xue", "第1个方案中奖了....");
+                        Log.e("xue", "期号： " + resultByqihao.getQihao());
+                        zhongjiangfangan = arrayToList;
+                        s.setTouziedu(1000 * money);
+                        s.setZhongjiangjine(money * i);
+                        s.setTouzifangan(arrayToList);
+                    } else {
+                        //第二种方案中奖
+                        sb.append("第2个方案中奖了....\n");
+                        sb.append("期号： ");
+                        sb.append(resultByqihao.getQihao());
+                        sb.append("\n");
+                        Log.e("xue", "第2个方案中奖了....");
+                        Log.e("xue", "期号： " + resultByqihao.getQihao());
+                        zhongjiangfangan = quedingfangan;
+                        s.setTouziedu(1000 * money);
+                        s.setZhongjiangjine(money * i);
+                        s.setTouzifangan(quedingfangan);
+                    }
+                } else {
+                    //不是第一期
+                    Results resultById = new ResultsDao(this).queryResultById(id);
+                    String result = resultById.getResult();
+                    res = resultById;
+                    if (!zhongjiangfangan.contains(result)) {
+                        sb.append("***********************************************\n");
+                        Log.e("xue", "***********************************************");
+                        res = new Results("", "");
+                    }
                /* if (!zhongjiangfangan.equals(shouyi.getTouzifangan())) {
                     sb.append("***********************************************\n");
                     Log.e("xue", "***********************************************");
                     res = new Results("", "");
                 }*/
-                if (arrayToList.contains(result)) {
-                    //第一种方案中奖
-                    zhongjiangfangan = arrayToList;
-                    sb.append("第1个方案中奖了....\n");
-                    sb.append("期号： ");
-                    sb.append(resultById.getQihao());
-                    sb.append("\n");
-                    Log.e("xue", "第1个方案中奖了....");
-                    Log.e("xue", "期号： " + resultById.getQihao());
-                    s.setTouziedu(shouyi.getZhongjiangjine());
-                    //s.setTouziedu(500 * money + shouyi.getZhongjiangjine());
-                    s.setZhongjiangjine(shouyi.getZhongjiangjine() * 1.9);
-                    s.setTouzifangan(arrayToList);
-                } else {
-                    //第二种方案中奖
-                    zhongjiangfangan = quedingfangan;
-                    sb.append("第2个方案中奖了....\n");
-                    sb.append("期号： ");
-                    sb.append(resultById.getQihao());
-                    sb.append("\n");
-                    Log.e("xue", "第2个方案中奖了....");
-                    Log.e("xue", "期号： " + resultById.getQihao());
-                    s.setTouziedu(1000 * money);
-                    s.setZhongjiangjine(money * i);
-                    s.setTouzifangan(quedingfangan);
+                    if (arrayToList.contains(result)) {
+                        //第一种方案中奖
+                        zhongjiangfangan = arrayToList;
+                        sb.append("第1个方案中奖了....\n");
+                        sb.append("期号： ");
+                        sb.append(resultById.getQihao());
+                        sb.append("\n");
+                        Log.e("xue", "第1个方案中奖了....");
+                        Log.e("xue", "期号： " + resultById.getQihao());
+                        s.setTouziedu(shouyi.getZhongjiangjine());
+                        //s.setTouziedu(500 * money + shouyi.getZhongjiangjine());
+                        s.setZhongjiangjine(shouyi.getZhongjiangjine() * 1.9);
+                        s.setTouzifangan(arrayToList);
+                    } else {
+                        //第二种方案中奖
+                        zhongjiangfangan = quedingfangan;
+                        sb.append("第2个方案中奖了....\n");
+                        sb.append("期号： ");
+                        sb.append(resultById.getQihao());
+                        sb.append("\n");
+                        Log.e("xue", "第2个方案中奖了....");
+                        Log.e("xue", "期号： " + resultById.getQihao());
+                        s.setTouziedu(1000 * money);
+                        s.setZhongjiangjine(money * i);
+                        s.setTouzifangan(quedingfangan);
+                    }
+                    count--;
+                    if (count == 0) {
+                        flag = false;
+                    }
                 }
-                count--;
-                if (count == 0) {
+                sb.append("投资额度：  ");
+                sb.append(s.getTouziedu());
+                sb.append("中奖金额：  ");
+                sb.append(Utils.get2Value(s.getZhongjiangjine()));
+                sb.append("\n");
+                sb.append("计数器：  ");
+                sb.append(count);
+                sb.append("\n");
+                Log.e("xue", "投资额度：  " + s.getTouziedu() + "中奖金额：  " + Utils.get2Value(s.getZhongjiangjine()));
+                Log.e("xue", "计数器：  " + count);
+                if (id <= end_id) {
                     flag = false;
                 }
+                id--;
+                shouyi = s;
             }
-            sb.append("投资额度：  ");
-            sb.append(s.getTouziedu());
-            sb.append("中奖金额：  ");
-            sb.append(Utils.get2Value(s.getZhongjiangjine()));
-            sb.append("\n");
-            sb.append("计数器：  ");
-            sb.append(count);
-            sb.append("\n");
-            Log.e("xue", "投资额度：  " + s.getTouziedu() + "中奖金额：  " + Utils.get2Value(s.getZhongjiangjine()));
-            Log.e("xue", "计数器：  " + count);
-            id--;
-            shouyi = s;
         }
+
     }
 
     public void submit(View v) {
@@ -194,8 +207,8 @@ public class SearchActivity extends Activity {
 
                     String begin = tv_begin.getText().toString().trim();
                     String end = tv_end.getText().toString().trim();
-                    begin = "20160104088";
-                    end = "20160104091";
+                    begin = "20160104102";
+                    end = "20160104106";
                     if (begin.length() != 11 || end.length() != 11) {
                         Message message = new Message();
                         message.what = 2;
