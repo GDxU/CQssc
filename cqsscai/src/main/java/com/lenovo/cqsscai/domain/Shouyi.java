@@ -31,4 +31,12 @@ public class Shouyi {
         this.touzifangan = touzifangan;
     }
 
+    @Override
+    public String toString() {
+        return "Shouyi{" +
+                "touziedu=" + touziedu +
+                ", zhongjiangjine=" + zhongjiangjine +
+                ", touzifangan=" + touzifangan +
+                '}';
+    }
 }
