@@ -16,6 +16,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".SelectActivity" />
+        <activity android:name=".ResultAcivity" />
     </application>
 
 </manifest>
