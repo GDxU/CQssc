@@ -60,7 +60,7 @@ public class SearchActivity extends Activity {
     public static final double i = 1900 / 2;//投资回报率(买大卖小的回报率都是这个数)
     public static final double money = 2;//每注金额
     public static final int REPEAT = 3;//最大重复投资次数
-    public static int count = REPEAT - 1;//最大重复投资次数
+    public static int count = REPEAT;//最大重复投资次数
     //public double zhongjiangMoney;//本次中奖金额
     public double subMoney;//本次收益
     public static double totalMoney;//当前剩余资金
@@ -79,17 +79,12 @@ public class SearchActivity extends Activity {
      * @throws SQLException
      */
     public void start(Results res, String begin, String end) throws SQLException {
-        //begin = "20160104088";
-        //end = "20160104091";
-        //Scanner sc = new Scanner(System.in);
-        //Results reses=new Results();
-        //  List<String> arrayToList = getArrayToList(strtouzhu);//决定的方案
         id = new ResultsDao(this).queryResultByqihao(begin).getId();
         end_id = new ResultsDao(this).queryResultByqihao(end).getId();
         while (end_id <= id) {
             if (!flag) {
                 flag = true;
-                count = REPEAT - 1;
+                count = REPEAT;
                 res = new Results("", "");
             } else {
                 id = new ResultsDao(this).queryResultByqihao(begin).getId();
@@ -102,7 +97,7 @@ public class SearchActivity extends Activity {
 
                 if (res.getQihao().equals("") && "".equals(res.getResult())) {
                     // 第一期
-                    count = REPEAT - 1;
+                    count = REPEAT;
                     Results resultByqihao = new ResultsDao(this).queryResultById(id);
                     res = resultByqihao;
                     String result = resultByqihao.getResult();
@@ -131,8 +126,11 @@ public class SearchActivity extends Activity {
                         s.setTouziedu(1000 * money);
                         s.setZhongjiangjine(money * i);
                         s.setTouzifangan(quedingfangan);
+                        count = REPEAT;
+                        res = new Results("", "");
                     }
                 } else {
+                    count--;
                     //不是第一期
                     Results resultById = new ResultsDao(this).queryResultById(id);
                     String result = resultById.getResult();
@@ -169,12 +167,17 @@ public class SearchActivity extends Activity {
                         sb.append("\n");
                         Log.e("xue", "第2个方案中奖了....");
                         Log.e("xue", "期号： " + resultById.getQihao());
-                        s.setTouziedu(1000 * money);
-                        s.setZhongjiangjine(money * i);
+                        if (count != REPEAT) {
+                            s.setTouziedu(shouyi.getZhongjiangjine());
+                            s.setZhongjiangjine(0);
+                        } else {
+                            s.setTouziedu(1000 * money);
+                            s.setZhongjiangjine(money * i);
+                        }
                         s.setTouzifangan(quedingfangan);
                     }
-                    count--;
-                    if (count == 0) {
+
+                    if (count == 1) {
                         flag = false;
                     }
                 }
@@ -207,8 +210,6 @@ public class SearchActivity extends Activity {
 
                     String begin = tv_begin.getText().toString().trim();
                     String end = tv_end.getText().toString().trim();
-                    begin = "20160104102";
-                    end = "20160104106";
                     if (begin.length() != 11 || end.length() != 11) {
                         Message message = new Message();
                         message.what = 2;
@@ -223,8 +224,6 @@ public class SearchActivity extends Activity {
                             handler.sendMessage(message);
                         } else {
                             dialog.dismiss();
-                            /*begin = "20160104088";
-                            end = "20160104091";*/
                             start(perRes, begin, end);
                             Message message = new Message();
                             message.what = 4;

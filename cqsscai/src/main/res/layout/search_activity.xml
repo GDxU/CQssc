@@ -10,13 +10,12 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_alignParentTop="true"
-        android:gravity="center_vertical"
-        android:textSize="25sp"
-        android:onClick="count"
-        android:textColor="#000000"
-        android:text="数据库数量:"
         android:layout_margin="10dp"
-        />
+        android:gravity="center_vertical"
+        android:onClick="count"
+        android:text="数据库数量:"
+        android:textColor="#000000"
+        android:textSize="25sp" />
 
     <Button
         android:layout_width="match_parent"
@@ -48,7 +47,9 @@
         android:gravity="center"
         android:hint="请输入初始期号"
         android:onClick="begin"
+        android:text="20160104087"
         android:textSize="20sp" />
+
     <Button
         android:id="@+id/btn_end"
         android:layout_width="80dp"
@@ -70,5 +71,6 @@
         android:gravity="center"
         android:hint="请输入结束期号"
         android:onClick="end"
+        android:text="20160104120"
         android:textSize="20sp" />
 </RelativeLayout>
