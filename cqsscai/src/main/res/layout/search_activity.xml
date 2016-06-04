@@ -47,7 +47,6 @@
         android:gravity="center"
         android:hint="请输入初始期号"
         android:onClick="begin"
-        android:text="20160104087"
         android:textSize="20sp" />
 
     <Button
@@ -71,6 +70,5 @@
         android:gravity="center"
         android:hint="请输入结束期号"
         android:onClick="end"
-        android:text="20160104120"
         android:textSize="20sp" />
 </RelativeLayout>
