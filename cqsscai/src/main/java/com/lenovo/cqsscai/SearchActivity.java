@@ -27,43 +27,13 @@ import java.util.List;
  * Created by Administrator on 2016/1/17.
  */
 public class SearchActivity extends Activity {
-    TextView tv;
-    TextView tv_begin;
-    TextView tv_end;
-    ProgressDialog dialog;
-    Button tv_count;
-
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // 初始化，只需要调用一次
-        AssetsDatabaseManager.initManager(getApplication());
-        initViews();
-        //   dialog.show();
-
-
-    }
-
-    private void initViews() {
-        setContentView(R.layout.search_activity);
-        tv_count = (Button) findViewById(R.id.tv_count);
-        tv = (TextView) findViewById(R.id.tv);
-        tv_begin = (TextView) findViewById(R.id.tv_begin);
-        tv_end = (TextView) findViewById(R.id.tv_end);
-        dialog = new ProgressDialog(SearchActivity.this);
-        dialog.setCanceledOnTouchOutside(false);
-        tv_count.setText("点击查询数据");
-    }
-
-
     public static final double i = 1900 / 2;//投资回报率(买大卖小的回报率都是这个数)
     public static final double money = 2;//每注金额
     public static final int REPEAT = 3;//最大重复投资次数
     public static int count = REPEAT;//最大重复投资次数
     //public double zhongjiangMoney;//本次中奖金额
-    public double subMoney;//本次收益
-    public static double totalMoney;//当前剩余资金
+    public double subMoney;//本周期收益
+    public static double totalMoney;//全部收益（开始到结束）
     public static Results perRes = new Results("", "");
     private static int id;
     static boolean flag = true;
@@ -81,6 +51,7 @@ public class SearchActivity extends Activity {
     public void start(Results res, String begin, String end) throws SQLException {
         id = new ResultsDao(this).queryResultByqihao(begin).getId();
         end_id = new ResultsDao(this).queryResultByqihao(end).getId();
+        totalMoney = 0;
         while (end_id <= id) {
             if (!flag) {
                 flag = true;
@@ -91,12 +62,12 @@ public class SearchActivity extends Activity {
             }
             List<String> arrayToList = Utils.getArrayToList(Utils.getFromAssets(this, "touzhu.txt"));//决定的方案
             List<String> quedingfangan = Utils.quedingfangan(arrayToList);//第二个方案
-
             Shouyi s = new Shouyi();
             while (flag) {
-
                 if (res.getQihao().equals("") && "".equals(res.getResult())) {
                     // 第一期
+                    sb.append("###########################\n");
+                    subMoney = 0;
                     count = REPEAT;
                     Results resultByqihao = new ResultsDao(this).queryResultById(id);
                     res = resultByqihao;
@@ -140,11 +111,6 @@ public class SearchActivity extends Activity {
                         Log.e("xue", "***********************************************");
                         res = new Results("", "");
                     }
-               /* if (!zhongjiangfangan.equals(shouyi.getTouzifangan())) {
-                    sb.append("***********************************************\n");
-                    Log.e("xue", "***********************************************");
-                    res = new Results("", "");
-                }*/
                     if (arrayToList.contains(result)) {
                         //第一种方案中奖
                         zhongjiangfangan = arrayToList;
@@ -184,18 +150,22 @@ public class SearchActivity extends Activity {
                 sb.append("投资额度：  ");
                 sb.append(s.getTouziedu());
                 sb.append("中奖金额：  ");
-                sb.append(Utils.get2Value(s.getZhongjiangjine()));
-                sb.append("\n");
-                sb.append("计数器：  ");
-                sb.append(count);
-                sb.append("\n");
+                sb.append(Utils.get2Value(s.getZhongjiangjine()) + " 本次:" + (s.getZhongjiangjine() - s.getTouziedu()));
+                sb.append("\n计数器：  " + count + "\n");
                 Log.e("xue", "投资额度：  " + s.getTouziedu() + "中奖金额：  " + Utils.get2Value(s.getZhongjiangjine()));
                 Log.e("xue", "计数器：  " + count);
                 if (id <= end_id) {
                     flag = false;
                 }
-                id--;
                 shouyi = s;
+                subMoney += s.getZhongjiangjine() - s.getTouziedu();
+                totalMoney += s.getZhongjiangjine() - s.getTouziedu();
+                if (count == 1 || !arrayToList.contains(new ResultsDao(this).queryResultById(id).getResult())) {
+                    //如果是第一方案的最后一期，或者第二方案的第一期 >>结束
+                    sb.append("本轮收益:" + subMoney + " 总收益:" + totalMoney + "\n");
+                    sb.append("###########################\n");
+                }
+                id--;
             }
         }
 
@@ -311,6 +281,30 @@ public class SearchActivity extends Activity {
             return false;
         }
     });
+    TextView tv;
+    TextView tv_begin;
+    TextView tv_end;
+    ProgressDialog dialog;
+    Button tv_count;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // 初始化，只需要调用一次
+        AssetsDatabaseManager.initManager(getApplication());
+        initViews();
+    }
+
+    private void initViews() {
+        setContentView(R.layout.search_activity);
+        tv_count = (Button) findViewById(R.id.tv_count);
+        tv = (TextView) findViewById(R.id.tv);
+        tv_begin = (TextView) findViewById(R.id.tv_begin);
+        tv_end = (TextView) findViewById(R.id.tv_end);
+        dialog = new ProgressDialog(SearchActivity.this);
+        dialog.setCanceledOnTouchOutside(false);
+        tv_count.setText("点击查询数据");
+    }
 
 }
 
