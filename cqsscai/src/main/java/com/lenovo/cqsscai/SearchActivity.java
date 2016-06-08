@@ -6,9 +6,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,7 +19,10 @@ import com.lenovo.cqsscai.domain.Shouyi;
 import com.lenovo.cqsscai.domain.Utils;
 
 import java.sql.SQLException;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -28,7 +31,7 @@ import java.util.List;
  */
 public class SearchActivity extends Activity {
     public static final double i = 1900 / 2;//投资回报率(买大卖小的回报率都是这个数)
-    public static final double money = 2;//每注金额
+    public static double money = 2;//每注金额
     public static final int REPEAT = 3;//最大重复投资次数
     public static int count = REPEAT;//最大重复投资次数
     //public double zhongjiangMoney;//本次中奖金额
@@ -41,6 +44,19 @@ public class SearchActivity extends Activity {
     static List<String> zhongjiangfangan;//中奖方案
     StringBuffer sb = new StringBuffer();
     int end_id = 0;
+    private int fund = 0;
+    //投入倍数
+    private  int MULT = 1;
+    //连中REPEAT次，获取的收益
+    private double MAX_PROFIT = Math.pow(1.9, REPEAT - 1) * i * money - 2000;
+    static Map<Integer, Integer> map;
+
+    static {
+        map = new LinkedHashMap<>();
+        map.put(1, 1);
+        map.put(2, 4);
+        map.put(3, 20);
+    }
 
     /**
      * @param res   上期开奖对象
@@ -48,7 +64,8 @@ public class SearchActivity extends Activity {
      * @return 本期开奖对象
      * @throws SQLException
      */
-    public void start(Results res, String begin, String end) throws SQLException {
+    public void start(Results res, String begin, String end, double kunsun) throws SQLException {
+
         id = new ResultsDao(this).queryResultByqihao(begin).getId();
         end_id = new ResultsDao(this).queryResultByqihao(end).getId();
         totalMoney = 0;
@@ -64,6 +81,9 @@ public class SearchActivity extends Activity {
             List<String> quedingfangan = Utils.quedingfangan(arrayToList);//第二个方案
             Shouyi s = new Shouyi();
             while (flag) {
+                MULT = getMult(MULT, kunsun);
+                if (MULT == 0) return;
+                money = money * MULT;
                 if (res.getQihao().equals("") && "".equals(res.getResult())) {
                     // 第一期
                     sb.append("###########################\n");
@@ -79,8 +99,6 @@ public class SearchActivity extends Activity {
                         sb.append("期号： ");
                         sb.append(resultByqihao.getQihao());
                         sb.append("\n");
-                        Log.e("xue", "第1个方案中奖了....");
-                        Log.e("xue", "期号： " + resultByqihao.getQihao());
                         zhongjiangfangan = arrayToList;
                         s.setTouziedu(1000 * money);
                         s.setZhongjiangjine(money * i);
@@ -91,8 +109,6 @@ public class SearchActivity extends Activity {
                         sb.append("期号： ");
                         sb.append(resultByqihao.getQihao());
                         sb.append("\n");
-                        Log.e("xue", "第2个方案中奖了....");
-                        Log.e("xue", "期号： " + resultByqihao.getQihao());
                         zhongjiangfangan = quedingfangan;
                         s.setTouziedu(1000 * money);
                         s.setZhongjiangjine(money * i);
@@ -108,7 +124,6 @@ public class SearchActivity extends Activity {
                     res = resultById;
                     if (!zhongjiangfangan.contains(result)) {
                         sb.append("***********************************************\n");
-                        Log.e("xue", "***********************************************");
                         res = new Results("", "");
                     }
                     if (arrayToList.contains(result)) {
@@ -118,8 +133,6 @@ public class SearchActivity extends Activity {
                         sb.append("期号： ");
                         sb.append(resultById.getQihao());
                         sb.append("\n");
-                        Log.e("xue", "第1个方案中奖了....");
-                        Log.e("xue", "期号： " + resultById.getQihao());
                         s.setTouziedu(shouyi.getZhongjiangjine());
                         //s.setTouziedu(500 * money + shouyi.getZhongjiangjine());
                         s.setZhongjiangjine(shouyi.getZhongjiangjine() * 1.9);
@@ -131,8 +144,6 @@ public class SearchActivity extends Activity {
                         sb.append("期号： ");
                         sb.append(resultById.getQihao());
                         sb.append("\n");
-                        Log.e("xue", "第2个方案中奖了....");
-                        Log.e("xue", "期号： " + resultById.getQihao());
                         if (count != REPEAT) {
                             s.setTouziedu(shouyi.getZhongjiangjine());
                             s.setZhongjiangjine(0);
@@ -152,8 +163,6 @@ public class SearchActivity extends Activity {
                 sb.append("中奖金额：  ");
                 sb.append(Utils.get2Value(s.getZhongjiangjine()) + " 本次:" + (s.getZhongjiangjine() - s.getTouziedu()));
                 sb.append("\n计数器：  " + count + "\n");
-                Log.e("xue", "投资额度：  " + s.getTouziedu() + "中奖金额：  " + Utils.get2Value(s.getZhongjiangjine()));
-                Log.e("xue", "计数器：  " + count);
                 if (id <= end_id) {
                     flag = false;
                 }
@@ -169,6 +178,22 @@ public class SearchActivity extends Activity {
             }
         }
 
+    }
+
+    private int getMult(int nativeMult, double kunsun) {
+        Set<Map.Entry<Integer, Integer>> entries = map.entrySet();
+        for (Map.Entry i : entries) {
+            //if(kunsun<=i.getKey())
+            if (-(kunsun-totalMoney) >= nativeMult * MAX_PROFIT) {
+                int key = (int) i.getKey() + 1;
+                if (key > 3) return 0;
+                return map.get(key);
+
+
+            }
+        }
+
+        return nativeMult;
     }
 
     public void submit(View v) {
@@ -194,7 +219,8 @@ public class SearchActivity extends Activity {
                             handler.sendMessage(message);
                         } else {
                             dialog.dismiss();
-                            start(perRes, begin, end);
+                            start(perRes, begin, end,
+                                    Double.valueOf(et_kunsun.getText().toString().trim()));
                             Message message = new Message();
                             message.what = 4;
                             handler.sendMessage(message);
@@ -286,6 +312,7 @@ public class SearchActivity extends Activity {
     TextView tv_end;
     ProgressDialog dialog;
     Button tv_count;
+    EditText et_kunsun;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -302,9 +329,11 @@ public class SearchActivity extends Activity {
         tv_begin = (TextView) findViewById(R.id.tv_begin);
         tv_end = (TextView) findViewById(R.id.tv_end);
         dialog = new ProgressDialog(SearchActivity.this);
+        et_kunsun = (EditText) findViewById(R.id.et_kunsun);
         dialog.setCanceledOnTouchOutside(false);
         tv_count.setText("点击查询数据");
     }
+
 
 }
 
