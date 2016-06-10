@@ -46,7 +46,7 @@ public class SearchActivity extends Activity {
     int end_id = 0;
     private int fund = 0;
     //投入倍数
-    private  int MULT = 1;
+    private int MULT = 1;
     //连中REPEAT次，获取的收益
     private double MAX_PROFIT = Math.pow(1.9, REPEAT - 1) * i * money - 2000;
     static Map<Integer, Integer> map;
@@ -181,19 +181,16 @@ public class SearchActivity extends Activity {
     }
 
     private int getMult(int nativeMult, double kunsun) {
+        if (nativeMult == 0) return 0;
         Set<Map.Entry<Integer, Integer>> entries = map.entrySet();
         for (Map.Entry i : entries) {
-            //if(kunsun<=i.getKey())
-            if (-(kunsun-totalMoney) >= nativeMult * MAX_PROFIT) {
+            if (-(kunsun - totalMoney) >= nativeMult * MAX_PROFIT) {
                 int key = (int) i.getKey() + 1;
                 if (key > 3) return 0;
                 return map.get(key);
-
-
             }
         }
-
-        return nativeMult;
+        return 0;
     }
 
     public void submit(View v) {
