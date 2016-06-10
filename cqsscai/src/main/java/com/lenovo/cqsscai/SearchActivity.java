@@ -50,7 +50,6 @@ public class SearchActivity extends Activity {
     //连中REPEAT次，获取的收益
     private double MAX_PROFIT = Math.pow(1.9, REPEAT - 1) * i * money - 2000;
     static Map<Integer, Integer> map;
-
     static {
         map = new LinkedHashMap<>();
         map.put(1, 1);
@@ -82,7 +81,10 @@ public class SearchActivity extends Activity {
             Shouyi s = new Shouyi();
             while (flag) {
                 MULT = getMult(MULT, kunsun);
-                if (MULT == 0) return;
+                if (MULT == 0) {
+                    Toast.makeText(SearchActivity.this, "mult=0", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 money = money * MULT;
                 if (res.getQihao().equals("") && "".equals(res.getResult())) {
                     // 第一期
@@ -181,7 +183,10 @@ public class SearchActivity extends Activity {
     }
 
     private int getMult(int nativeMult, double kunsun) {
-        if (nativeMult == 0) return 0;
+        if (nativeMult == 0) {
+            Toast.makeText(SearchActivity.this, "投入倍数==0,请重新查询", Toast.LENGTH_SHORT).show();
+            return 0;
+        }
         Set<Map.Entry<Integer, Integer>> entries = map.entrySet();
         for (Map.Entry i : entries) {
             if (-(kunsun - totalMoney) >= nativeMult * MAX_PROFIT) {
@@ -190,7 +195,7 @@ public class SearchActivity extends Activity {
                 return map.get(key);
             }
         }
-        return 0;
+        return nativeMult;
     }
 
     public void submit(View v) {
