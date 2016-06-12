@@ -60,6 +60,13 @@
         android:textSize="20sp" />
 
     <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Large Text"
+        android:id="@+id/textView" />
+
+    <TextView
         android:id="@+id/tv_end"
         android:layout_width="match_parent"
         android:layout_height="80dp"
@@ -71,4 +78,11 @@
         android:hint="请输入结束期号"
         android:onClick="end"
         android:textSize="20sp" />
+
+    <EditText
+        android:layout_width="80dp"
+        android:layout_height="50dp"
+        android:id="@+id/et_kunsun"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@+id/textView" />
 </RelativeLayout>
