@@ -92,7 +92,7 @@ public class ResultAcivity extends Activity {
                     return;
                 }
                 sb.append("mult=" + MULT + "\n");
-                money = money * MULT;
+                // money = money * MULT;
                 if (res.getQihao().equals("") && "".equals(res.getResult())) {
                     // 第一期
                     repeatMap.clear();
@@ -111,8 +111,8 @@ public class ResultAcivity extends Activity {
                         sb.append("\n");
                         repeatMap.put(count, resultByqihao.getQihao());
                         zhongjiangfangan = arrayToList;
-                        s.setTouziedu(1000 * money);
-                        s.setZhongjiangjine(money * i);
+                        s.setTouziedu(1000 * money * MULT);
+                        s.setZhongjiangjine(money * i * MULT);
                         s.setTouzifangan(arrayToList);
                     } else {
                         //第二种方案中奖
@@ -121,8 +121,8 @@ public class ResultAcivity extends Activity {
                         sb.append(resultByqihao.getQihao());
                         sb.append("\n");
                         zhongjiangfangan = quedingfangan;
-                        s.setTouziedu(1000 * money);
-                        s.setZhongjiangjine(money * i);
+                        s.setTouziedu(1000 * money * MULT);
+                        s.setZhongjiangjine(money * i * MULT);
                         s.setTouzifangan(quedingfangan);
                         count = REPEAT;
                         res = new Results("", "");
@@ -162,8 +162,8 @@ public class ResultAcivity extends Activity {
                             s.setTouziedu(shouyi.getZhongjiangjine());
                             s.setZhongjiangjine(0);
                         } else {
-                            s.setTouziedu(1000 * money);
-                            s.setZhongjiangjine(money * i);
+                            s.setTouziedu(1000 * money * MULT);
+                            s.setZhongjiangjine(money * i * MULT);
                         }
                         s.setTouzifangan(quedingfangan);
                     }
@@ -203,9 +203,10 @@ public class ResultAcivity extends Activity {
             Toast.makeText(ResultAcivity.this, "投入倍数==0,请重新查询", Toast.LENGTH_SHORT).show();
             return 0;
         }
+        double j = -(kunsun + periodMoney);
         Set<Map.Entry<Integer, Integer>> entries = map.entrySet();
         for (Map.Entry i : entries) {
-            if (-(kunsun - periodMoney) >= nativeMult * MAX_PROFIT) {
+            if (j >= nativeMult * MAX_PROFIT) {
                 int key = (int) i.getKey() + 1;
                 sb.append("\n小伙子,开始加倍了key=" + key + "\n");
                 if (key > 3) return 0;
