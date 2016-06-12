@@ -1,11 +1,11 @@
 package com.lenovo.cqsscai;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +20,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import me.drakeet.materialdialog.MaterialDialog;
 
 /**
  * Created by Administrator on 2016/1/23.
@@ -72,6 +74,7 @@ public class ResultAcivity extends Activity {
         double periodMoney = 0;
         while (end_id <= id) {
             if (!flag) {
+                //连中两期，第三期挂掉
                 flag = true;
                 count = REPEAT;
                 res = new Results("", "");
@@ -88,6 +91,7 @@ public class ResultAcivity extends Activity {
                     Toast.makeText(ResultAcivity.this, "mult=0", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                sb.append("mult=" + MULT + "\n");
                 money = money * MULT;
                 if (res.getQihao().equals("") && "".equals(res.getResult())) {
                     // 第一期
@@ -164,7 +168,7 @@ public class ResultAcivity extends Activity {
                         s.setTouzifangan(quedingfangan);
                     }
                     if (count == 1) {
-                            flag = false;
+                        flag = false;
                     }
                 }
                 sb.append("投资额度：  ");
@@ -185,7 +189,6 @@ public class ResultAcivity extends Activity {
                     sb.append("###########################\n");
                 }
                 id--;
-
             }
             //如果第一种方案连续中出三次,则重新计算periodMoney
             if (repeatMap.size() == 3) {
@@ -204,6 +207,7 @@ public class ResultAcivity extends Activity {
         for (Map.Entry i : entries) {
             if (-(kunsun - periodMoney) >= nativeMult * MAX_PROFIT) {
                 int key = (int) i.getKey() + 1;
+                sb.append("\n小伙子,开始加倍了key=" + key + "\n");
                 if (key > 3) return 0;
                 return map.get(key);
             }
@@ -211,14 +215,16 @@ public class ResultAcivity extends Activity {
         return nativeMult;
     }
 
-    ProgressDialog progressDialog;
+    MaterialDialog progressDialog;
     TextView tv_result;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.result_activity);
-        progressDialog = new ProgressDialog(this);
+        progressDialog = new MaterialDialog(this);
+        ProgressBar bar = new ProgressBar(this);
+        progressDialog.setContentView(bar);
         tv_result = (TextView) findViewById(R.id.tv_result);
         Intent intent = getIntent();
         if (null != intent) {
