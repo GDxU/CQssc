@@ -77,18 +77,18 @@ public class ResultAcivity extends Activity {
                 res = new Results("", "");
             } else {
                 id = new ResultsDao(this).queryResultByqihao(begin).getId();
+                periodMoney = 0;
             }
             List<String> arrayToList = Utils.getArrayToList(Utils.getFromAssets(this, "touzhu.txt"));//决定的方案
             List<String> quedingfangan = Utils.quedingfangan(arrayToList);//第二个方案
             Shouyi s = new Shouyi();
-            periodMoney = 0;
             while (flag) {
-                MULT = getMult(MULT, kunsun);
+                MULT = getMult(MULT, kunsun, periodMoney);
                 if (MULT == 0) {
                     Toast.makeText(ResultAcivity.this, "mult=0", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                //money = money * MULT;
+                money = money * MULT;
                 if (res.getQihao().equals("") && "".equals(res.getResult())) {
                     // 第一期
                     repeatMap.clear();
@@ -163,9 +163,8 @@ public class ResultAcivity extends Activity {
                         }
                         s.setTouzifangan(quedingfangan);
                     }
-
                     if (count == 1) {
-                        flag = false;
+                            flag = false;
                     }
                 }
                 sb.append("投资额度：  ");
@@ -173,7 +172,6 @@ public class ResultAcivity extends Activity {
                 sb.append("中奖金额：  ");
                 sb.append(Utils.get2Value(s.getZhongjiangjine()) + " 本次:" + (s.getZhongjiangjine() - s.getTouziedu()));
                 sb.append("\n计数器：  " + count + "\n");
-                sb.append("mult=" + MULT + "\n");
                 if (id <= end_id) {
                     flag = false;
                 }
@@ -183,10 +181,11 @@ public class ResultAcivity extends Activity {
                 periodMoney += s.getZhongjiangjine() - s.getTouziedu();
                 if (count == 1 || !arrayToList.contains(new ResultsDao(this).queryResultById(id).getResult())) {
                     //如果是第一方案的最后一期，或者第二方案的第一期 >>结束
-                    sb.append("本轮收益:" + subMoney + " 总收益:" + totalMoney + "\n");
+                    sb.append("本轮收益:" + subMoney + " 总收益:" + totalMoney + " 期间收益:" + periodMoney + "\n");
                     sb.append("###########################\n");
                 }
                 id--;
+
             }
             //如果第一种方案连续中出三次,则重新计算periodMoney
             if (repeatMap.size() == 3) {
@@ -196,14 +195,14 @@ public class ResultAcivity extends Activity {
         }
     }
 
-    private int getMult(int nativeMult, double kunsun) {
+    private int getMult(int nativeMult, double kunsun, double periodMoney) {
         if (nativeMult == 0) {
             Toast.makeText(ResultAcivity.this, "投入倍数==0,请重新查询", Toast.LENGTH_SHORT).show();
             return 0;
         }
         Set<Map.Entry<Integer, Integer>> entries = map.entrySet();
         for (Map.Entry i : entries) {
-            if (-(kunsun - totalMoney) >= nativeMult * MAX_PROFIT) {
+            if (-(kunsun - periodMoney) >= nativeMult * MAX_PROFIT) {
                 int key = (int) i.getKey() + 1;
                 if (key > 3) return 0;
                 return map.get(key);
